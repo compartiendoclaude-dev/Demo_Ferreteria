@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataVisual SV — Demo Ferretería</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#FFF7ED;color:#1E293B}
+:root{--nav:#431407;--acc:#EA580C;--amber:#D97706;--green:#059669;--red:#DC2626;--blue:#2563EB}
+
+.topbar{background:var(--nav);padding:10px 24px;display:flex;align-items:center;justify-content:space-between}
+.topbar .brand{color:#FED7AA;font-size:12px;font-weight:700;letter-spacing:1px}
+.topbar h1{color:#fff;font-size:17px;font-weight:700}
+.topbar .badge{background:var(--acc);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+
+.sector-bar{background:linear-gradient(135deg,#C2410C,#431407);padding:12px 24px;display:flex;align-items:center;gap:12px}
+.sector-bar h2{color:#fff;font-size:15px;font-weight:700}
+.sector-bar p{color:#FED7AA;font-size:12px}
+.sector-bar .period{margin-left:auto;background:rgba(255,255,255,.15);border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:600}
+
+.filters{background:#fff;padding:10px 24px;border-bottom:1px solid #FED7AA;display:flex;gap:10px;align-items:center}
+.filters label{font-size:12px;font-weight:600;color:#64748B}
+.filters select{border:1px solid #D1D5DB;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
+.wm{margin-left:auto;font-size:11px;color:#CBD5E1;font-weight:700;letter-spacing:1px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:16px 24px}
+.kpi{background:#fff;border-radius:12px;padding:13px 14px;border:1px solid #FED7AA;border-top:3px solid var(--acc)}
+.kpi.green{border-top-color:var(--green)}
+.kpi.red{border-top-color:var(--red)}
+.kpi.blue{border-top-color:var(--blue)}
+.kpi.amber{border-top-color:var(--amber)}
+.kpi .label{font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px}
+.kpi .value{font-size:20px;font-weight:800;color:#0F172A;margin:4px 0 2px}
+.kpi .delta{font-size:11px;font-weight:600}
+.up{color:#059669}.dn{color:#DC2626}
+.kpi .sub{font-size:10px;color:#94A3B8;margin-top:2px}
+
+.row2{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;padding:0 24px 12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 24px 20px}
+.card{background:#fff;border-radius:12px;border:1px solid #FED7AA;padding:16px}
+.card h3{font-size:13px;font-weight:700;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card h3 span{background:#FFF7ED;color:var(--acc);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+
+/* Sucursales */
+.suc-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #FFF7ED}
+.suc-row:last-child{border:none}
+.suc-name{font-size:13px;font-weight:700;color:#431407;width:110px}
+.suc-detail{flex:1}
+.suc-bar-wrap{background:#F1F5F9;border-radius:4px;height:10px;overflow:hidden;margin-bottom:3px}
+.suc-bar{height:100%;border-radius:4px}
+.suc-meta{font-size:10px;color:#94A3B8;display:flex;justify-content:space-between}
+.suc-val{font-size:14px;font-weight:800;width:65px;text-align:right}
+
+/* ABC analysis */
+.abc-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #FFF7ED;font-size:11px}
+.abc-item:last-child{border:none}
+.abc-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex-shrink:0}
+.abc-name{flex:1;font-weight:600;color:#1E293B;font-size:11px}
+.abc-rev{font-weight:700;font-size:12px}
+.abc-rot{font-size:10px;color:#94A3B8;text-align:right}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{background:#FFF7ED;color:#431407;font-weight:700;padding:7px 8px;text-align:left;border-bottom:2px solid #FED7AA;font-size:10px;text-transform:uppercase}
+.tbl td{padding:7px 8px;border-bottom:1px solid #FFF7ED;color:#374151;font-weight:500}
+.tbl tr:hover td{background:#FFF7ED}
+.badge-si{background:#D1FAE5;color:#065F46;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-no{background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-ri{background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+
+.alert-strip{background:#FEF3C7;border-left:4px solid #D97706;padding:10px 24px;font-size:12px;color:#78350F;margin-bottom:4px}
+.footer{background:var(--nav);text-align:center;padding:8px;color:rgba(255,255,255,.4);font-size:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">DATAVISUAL SV</div>
+  <h1>🔧 Dashboard Ejecutivo — Ferretería / 2 Sucursales</h1>
+  <div class="badge">DEMO INTERACTIVA</div>
+</div>
+
+<div class="sector-bar">
+  <div>
+    <h2>El Tornillo de Oro, S.A.S.</h2>
+    <p>Ferretería Industrial · La Libertad, El Salvador · 2 Sucursales · Mayo 2025</p>
+  </div>
+  <div class="period">📅 Mayo 2025</div>
+</div>
+
+<div class="filters">
+  <label>Sucursal:</label>
+  <select onchange="render()">
+    <option>Ambas sucursales</option>
+    <option>Sucursal Central (Santa Tecla)</option>
+    <option>Sucursal Norte (Quezaltepeque)</option>
+  </select>
+  <label>Período:</label>
+  <select onchange="render()">
+    <option>Mayo 2025</option>
+    <option>Abril 2025</option>
+    <option>Q1 2025</option>
+  </select>
+  <div class="wm">DEMO · datavisualsv.com</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi green"><div class="label">Ventas Totales</div><div class="value">$38,420</div><div class="delta up">▲ 9.2% vs mes ant.</div><div class="sub">ambas sucursales</div></div>
+  <div class="kpi blue"><div class="label">Margen Bruto</div><div class="value">34.8%</div><div class="delta up">▲ 1.2% mejora</div><div class="sub">meta: 35%</div></div>
+  <div class="kpi amber"><div class="label">Cuentas x Cobrar</div><div class="value">$12,840</div><div class="delta dn">▼ 18 clientes</div><div class="sub">crédito activo</div></div>
+  <div class="kpi red"><div class="label">Productos Sin Mov.</div><div class="value">142</div><div class="delta dn">▼ capital frenado</div><div class="sub">+60 días sin venta</div></div>
+  <div class="kpi"><div class="label">Ticket Promedio</div><div class="value">$186</div><div class="delta up">▲ 8% vs abr.</div><div class="sub">por transacción</div></div>
+  <div class="kpi amber"><div class="label">Rotación Inventario</div><div class="value">4.2x</div><div class="delta dn">▼ meta es 5x</div><div class="sub">al año</div></div>
+</div>
+
+<div class="alert-strip">
+  ⚠ <strong>Alertas:</strong> 3 productos principales con stock < 15 unidades · Cliente "Constructora Ávila" con CxC vencida $4,200 a 47 días · Sucursal Norte 12% bajo meta de mayo
+</div>
+
+<div class="row2">
+  <div class="card">
+    <h3>📊 Ventas por Semana — Comparativo Sucursales <span>mayo 2025</span></h3>
+    <canvas id="chartSemanas" height="100"></canvas>
+  </div>
+  <div class="card">
+    <h3>🏪 Desempeño por Sucursal <span>vs meta del mes</span></h3>
+    <div id="sucursales" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<div class="row3">
+  <div class="card">
+    <h3>📦 Análisis ABC Productos <span>pareto 80/20</span></h3>
+    <div id="abcList"></div>
+  </div>
+  <div class="card">
+    <h3>💳 CxC Clientes Crédito <span>estado de cuenta</span></h3>
+    <table class="tbl" id="cxcTable"></table>
+  </div>
+  <div class="card">
+    <h3>📉 Categorías por Margen <span>% rentabilidad</span></h3>
+    <canvas id="chartMargenes" height="180"></canvas>
+  </div>
+</div>
+
+<div style="background:#F1F5F9;padding:6px 20px;font-size:9px;color:#94A3B8;text-align:center;border-top:1px solid #E2E8F0">⚠ Los datos mostrados son de demostración. Los datos reales provienen exclusivamente de las fuentes del cliente. DataVisual SV no garantiza la exactitud de los datos de origen. Las decisiones son responsabilidad exclusiva del cliente. · datavisualsv.com</div>
+<div class="footer">© 2025 DataVisual SV · Demo para El Tornillo de Oro · dashboard@datavisualsv.com</div>
+
+<script>
+let charts={};
+function mkChart(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+
+const semanas=['S1 (1–7)','S2 (8–14)','S3 (15–21)','S4 (22–28)'];
+const sucData=[
+  {nombre:'Central · Santa Tecla',ventas:23800,meta:22000,color:'#EA580C'},
+  {nombre:'Norte · Quezaltepeque',ventas:14620,meta:16500,color:'#2563EB'},
+];
+const abcItems=[
+  {c:'A',nombre:'Cemento Gris 42.5Kg',rev:'$8,240',rot:'Alto',col:'#059669'},
+  {c:'A',nombre:'Varilla Corrugada 3/8"',rev:'$5,180',rot:'Alto',col:'#059669'},
+  {c:'A',nombre:'Block 15×20×40cm',rev:'$4,920',rot:'Alto',col:'#059669'},
+  {c:'B',nombre:'Pintura Látex Galón',rev:'$2,840',rot:'Medio',col:'#D97706'},
+  {c:'B',nombre:'Cable Thhn #12',rev:'$2,100',rot:'Medio',col:'#D97706'},
+  {c:'C',nombre:'Masilla Plástica',rev:'$380',rot:'Bajo',col:'#DC2626'},
+  {c:'C',nombre:'Sellador Muro 4L',rev:'$290',rot:'Bajo',col:'#DC2626'},
+];
+const cxcData=[
+  {cli:'Constructora Ávila',saldo:'$4,200',dias:'47d',lim:'$5,000',estado:'ri'},
+  {cli:'Ingeniería Cruz',saldo:'$2,800',dias:'22d',lim:'$4,000',estado:'si'},
+  {cli:'Instalaciones Paz',saldo:'$1,940',dias:'35d',lim:'$3,000',estado:'ri'},
+  {cli:'Arquitecto Mejía',saldo:'$1,200',dias:'18d',lim:'$2,500',estado:'si'},
+  {cli:'Maestro Ramos',saldo:'$840',dias:'55d',lim:'$1,000',estado:'no'},
+  {cli:'Const. Hernández',saldo:'$620',dias:'12d',lim:'$2,000',estado:'si'},
+];
+const categorias=['Construcción','Plomería','Electricidad','Pintura','Herramienta','Madera'];
+const margenes=[38,32,29,26,42,35];
+
+function render(){
+  requestAnimationFrame(()=>{
+    mkChart('chartSemanas',{type:'bar',data:{labels:semanas,datasets:[
+      {label:'Central',data:[5800,6100,5900,6000],backgroundColor:'rgba(234,88,12,.85)',borderRadius:4},
+      {label:'Norte',data:[3600,3800,3700,3522],backgroundColor:'rgba(37,99,235,.75)',borderRadius:4},
+    ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#FFF7ED'}}}}});
+
+    mkChart('chartMargenes',{type:'bar',data:{labels:categorias,
+      datasets:[{label:'Margen %',data:margenes,backgroundColor:margenes.map(m=>m>=35?'rgba(5,150,105,.85)':m>=28?'rgba(217,119,6,.8)':'rgba(220,38,38,.7)'),borderRadius:6}]},
+      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{max:50,ticks:{callback:v=>v+'%'},grid:{color:'#FFF7ED'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  });
+
+  // Sucursales
+  document.getElementById('sucursales').innerHTML=sucData.map(s=>{
+    const pct=(s.ventas/s.meta*100).toFixed(0);
+    const ok=s.ventas>=s.meta;
+    return `<div class="suc-row">
+      <div class="suc-name">${s.nombre.split('·')[0]}<br><span style="font-size:10px;color:#94A3B8">· ${s.nombre.split('·')[1]}</span></div>
+      <div class="suc-detail">
+        <div class="suc-bar-wrap"><div class="suc-bar" style="width:${Math.min(pct,100)}%;background:${ok?s.color:'#EF4444'}"></div></div>
+        <div class="suc-meta"><span>${pct}% de meta</span><span>Meta: $${s.meta.toLocaleString()}</span></div>
+      </div>
+      <div class="suc-val" style="color:${ok?'#059669':'#DC2626'}">$${(s.ventas/1000).toFixed(1)}K</div>
+    </div>`;
+  }).join('');
+
+  // ABC
+  document.getElementById('abcList').innerHTML=abcItems.map(a=>`
+    <div class="abc-item">
+      <div class="abc-badge" style="background:${a.col}">${a.c}</div>
+      <div class="abc-name">${a.nombre}</div>
+      <div>
+        <div class="abc-rev" style="color:${a.col}">${a.rev}</div>
+        <div class="abc-rot">${a.rot}</div>
+      </div>
+    </div>`).join('');
+
+  // CxC
+  document.getElementById('cxcTable').innerHTML=`<thead><tr><th>Cliente</th><th>Saldo</th><th>Días</th><th>Estado</th></tr></thead><tbody>`+
+    cxcData.map(c=>`<tr><td style="font-size:10px">${c.cli}</td><td style="font-weight:700;color:${c.estado==='no'?'#DC2626':c.estado==='ri'?'#D97706':'#059669'}">${c.saldo}</td><td>${c.dias}</td>
+      <td><span class="${c.estado==='no'?'badge-no':c.estado==='ri'?'badge-ri':'badge-si'}">${c.estado==='no'?'VENCIDA':c.estado==='ri'?'RIESGO':'AL DÍA'}</span></td></tr>`).join('')+'</tbody>';
+}
+render();
+</script>
+</body>
+</html>
