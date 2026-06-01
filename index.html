@@ -1,226 +1,1034 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DataVisual SV — Demo Ferretería</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataVisual SV — Demo Ferretería · Selector de Paquete</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&family=Syne:wght@600;700;800&family=Raleway:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#FFF7ED;color:#1E293B}
-:root{--nav:#431407;--acc:#EA580C;--amber:#D97706;--green:#059669;--red:#DC2626;--blue:#2563EB}
+body{font-family:'DM Sans',sans-serif;background:#FFF7ED;color:#1E293B;font-size:13px;min-height:100vh}
 
-.topbar{background:var(--nav);padding:10px 24px;display:flex;align-items:center;justify-content:space-between}
-.topbar .brand{color:#FED7AA;font-size:12px;font-weight:700;letter-spacing:1px}
-.topbar h1{color:#fff;font-size:17px;font-weight:700}
-.topbar .badge{background:var(--acc);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+/* ════ PKG SELECTOR ════ */
+.pkg-bar{
+  background:#07101E;display:flex;align-items:stretch;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  position:sticky;top:0;z-index:200;
+}
+.pkg-bar-label{
+  display:flex;align-items:center;padding:0 20px;
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  color:rgba(255,255,255,.25);letter-spacing:2.5px;white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.pkg-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 6px;cursor:pointer;border:none;background:transparent;
+  border-right:1px solid rgba(255,255,255,.06);
+  transition:background .2s;position:relative;gap:2px;
+}
+.pkg-btn:last-child{border-right:none}
+.pkg-btn:hover{background:rgba(255,255,255,.05)}
+.pkg-btn-name{font-size:11px;font-weight:800;letter-spacing:.5px;color:rgba(255,255,255,.3);transition:color .2s}
+.pkg-btn-desc{font-size:9px;font-weight:400;color:rgba(255,255,255,.2);letter-spacing:.3px}
+.pkg-btn-price{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:rgba(255,255,255,.3);transition:color .2s}
+.pkg-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;transition:background .2s}
 
-.sector-bar{background:linear-gradient(135deg,#C2410C,#431407);padding:12px 24px;display:flex;align-items:center;gap:12px}
-.sector-bar h2{color:#fff;font-size:15px;font-weight:700}
-.sector-bar p{color:#FED7AA;font-size:12px}
-.sector-bar .period{margin-left:auto;background:rgba(255,255,255,.15);border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:600}
+.pkg-btn.sel-s{background:rgba(234,88,12,.08)}
+.pkg-btn.sel-s .pkg-btn-name{color:#EA580C}
+.pkg-btn.sel-s .pkg-btn-price{color:#EA580C}
+.pkg-btn.sel-s .pkg-btn-desc{color:rgba(234,88,12,.6)}
+.pkg-btn.sel-s::after{background:#EA580C}
 
-.filters{background:#fff;padding:10px 24px;border-bottom:1px solid #FED7AA;display:flex;gap:10px;align-items:center}
-.filters label{font-size:12px;font-weight:600;color:#64748B}
-.filters select{border:1px solid #D1D5DB;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
-.wm{margin-left:auto;font-size:11px;color:#CBD5E1;font-weight:700;letter-spacing:1px}
+.pkg-btn.sel-g{background:rgba(5,150,105,.08)}
+.pkg-btn.sel-g .pkg-btn-name{color:#10B981}
+.pkg-btn.sel-g .pkg-btn-price{color:#10B981}
+.pkg-btn.sel-g .pkg-btn-desc{color:rgba(16,185,129,.6)}
+.pkg-btn.sel-g::after{background:#10B981}
 
-.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:16px 24px}
-.kpi{background:#fff;border-radius:12px;padding:13px 14px;border:1px solid #FED7AA;border-top:3px solid var(--acc)}
-.kpi.green{border-top-color:var(--green)}
-.kpi.red{border-top-color:var(--red)}
-.kpi.blue{border-top-color:var(--blue)}
-.kpi.amber{border-top-color:var(--amber)}
-.kpi .label{font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px}
-.kpi .value{font-size:20px;font-weight:800;color:#0F172A;margin:4px 0 2px}
-.kpi .delta{font-size:11px;font-weight:600}
-.up{color:#059669}.dn{color:#DC2626}
-.kpi .sub{font-size:10px;color:#94A3B8;margin-top:2px}
+.pkg-btn.sel-p{background:rgba(37,99,235,.08)}
+.pkg-btn.sel-p .pkg-btn-name{color:#60A5FA}
+.pkg-btn.sel-p .pkg-btn-price{color:#60A5FA}
+.pkg-btn.sel-p .pkg-btn-desc{color:rgba(96,165,250,.6)}
+.pkg-btn.sel-p::after{background:#2563EB}
 
-.row2{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;padding:0 24px 12px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 24px 20px}
-.card{background:#fff;border-radius:12px;border:1px solid #FED7AA;padding:16px}
-.card h3{font-size:13px;font-weight:700;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card h3 span{background:#FFF7ED;color:var(--acc);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+/* ════ ROOT FADE ════ */
+#root{transition:opacity .2s ease}
+#root.fading{opacity:0;pointer-events:none}
 
-/* Sucursales */
-.suc-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #FFF7ED}
+/* ════ SHARED LAYOUT ════ */
+.topbar{display:flex;align-items:center;padding:0 24px;height:54px;border-bottom:4px solid var(--acc)}
+.brand{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,.3);letter-spacing:2px}
+.top-title{flex:1;text-align:center;font-size:15px;font-weight:800;color:#fff}
+.pkg-badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:5px 14px;border-radius:3px;white-space:nowrap}
+
+.subbar{padding:10px 24px 13px;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
+.subbar-info h2{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px}
+.subbar-info p{font-size:11px;color:rgba(255,255,255,.4)}
+.subbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.src-chip{font-size:9px;font-weight:700;padding:3px 10px;border-radius:3px;font-family:'DM Mono',monospace}
+.per-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:600;padding:5px 14px;border-radius:3px}
+
+.filters{background:#fff;border-bottom:1px solid #FED7AA;padding:9px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.f-lbl{font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.filters select{border:1px solid #FED7AA;border-radius:5px;padding:5px 10px;font-size:11px;color:#1E293B;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.filters select:focus{border-color:var(--acc)}
+.f-sep{width:1px;height:18px;background:#FED7AA;flex-shrink:0}
+.f-space{flex:1}
+.f-wm{color:#CBD5E1;font-size:9px;font-weight:700;letter-spacing:2px;font-family:'DM Mono',monospace}
+
+/* alert */
+.alert-bar{margin:14px 24px 0;border-radius:6px;padding:9px 14px;font-size:11px;font-weight:600;border-left:4px solid;line-height:1.6}
+.alert-bar.ok{background:#ECFDF5;border-color:#059669;color:#064E3B}
+.alert-bar.warn{background:#FFFBEB;border-color:#D97706;color:#78350F}
+.alert-bar.crit{background:#FEF2F2;border-color:#DC2626;color:#7F1D1D}
+
+/* tabs */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #FED7AA;padding:0 24px;overflow-x:auto}
+.tab{padding:10px 18px;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab.active{border-bottom-color:var(--acc);color:var(--acc-dark,#431407)}
+.tab:hover:not(.active){background:#FFF7ED}
+.tabcontent{display:none}.tabcontent.active{display:block}
+.tab-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:#FFF7ED;color:#94A3B8;font-family:'DM Mono',monospace}
+.tab.active .tab-pill{background:var(--acc-light);color:var(--acc)}
+
+/* kpi grids */
+.kpi-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 24px}
+.kpi-grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px 24px}
+.kpi-grid-free{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;padding:14px 24px}
+
+/* kpi card */
+.kpi{background:#fff;border-radius:8px;border:1px solid #FED7AA;padding:13px 15px;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;cursor:default}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(67,20,7,.08)}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-lbl{font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.kpi-val{font-size:21px;font-weight:800;color:#0F172A;line-height:1;margin-bottom:3px}
+.kpi-delta{font-size:10px;font-weight:700}
+.up{color:#059669}.dn{color:#DC2626}.neutral{color:#64748B}
+.kpi-sub{font-size:9px;color:#94A3B8;margin-top:2px}
+.kpi-rag{position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%}
+.kpi-rag.g{background:#059669;box-shadow:0 0 7px rgba(5,150,105,.6)}
+.kpi-rag.a{background:#D97706;box-shadow:0 0 7px rgba(217,119,6,.6)}
+.kpi-rag.r{background:#DC2626;box-shadow:0 0 7px rgba(220,38,38,.6)}
+.kpi-thresh{position:absolute;bottom:10px;right:10px;font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px;font-family:'DM Mono',monospace}
+.kpi-thresh.g{background:#ECFDF5;color:#059669}
+.kpi-thresh.r{background:#FEF2F2;color:#DC2626}
+.kpi-thresh.a{background:#FFFBEB;color:#D97706}
+
+/* layouts */
+.g2{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;padding:0 24px 12px}
+.g21{display:grid;grid-template-columns:3fr 2fr;gap:12px;padding:0 24px 12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 24px 12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:0 24px 12px}
+.gfull{padding:0 24px 12px}
+
+/* card */
+.card{background:#fff;border-radius:8px;border:1px solid #FED7AA;padding:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:700;color:#0F172A;display:flex;align-items:center;gap:6px}
+.card-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px}
+.exp-btn{background:#FFF7ED;border:1px solid #FED7AA;border-radius:4px;padding:3px 8px;font-size:9px;font-weight:700;cursor:pointer;color:#64748B;font-family:'DM Sans',sans-serif;transition:.15s}
+.exp-btn:hover{background:#fff;color:#431407;border-color:var(--acc)}
+
+/* sucursal bar */
+.suc-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #FFF7ED}
 .suc-row:last-child{border:none}
-.suc-name{font-size:13px;font-weight:700;color:#431407;width:110px}
+.suc-name{font-size:12px;font-weight:700;color:#431407;width:115px;line-height:1.3}
 .suc-detail{flex:1}
 .suc-bar-wrap{background:#F1F5F9;border-radius:4px;height:10px;overflow:hidden;margin-bottom:3px}
-.suc-bar{height:100%;border-radius:4px}
-.suc-meta{font-size:10px;color:#94A3B8;display:flex;justify-content:space-between}
-.suc-val{font-size:14px;font-weight:800;width:65px;text-align:right}
+.suc-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.suc-meta{font-size:9px;color:#94A3B8;display:flex;justify-content:space-between}
+.suc-val{font-size:14px;font-weight:800;width:60px;text-align:right}
 
-/* ABC analysis */
-.abc-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #FFF7ED;font-size:11px}
+/* ABC */
+.abc-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #FFF7ED}
 .abc-item:last-child{border:none}
 .abc-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex-shrink:0}
-.abc-name{flex:1;font-weight:600;color:#1E293B;font-size:11px}
-.abc-rev{font-weight:700;font-size:12px}
-.abc-rot{font-size:10px;color:#94A3B8;text-align:right}
+.abc-name{flex:1;font-weight:600;color:#1E293B;font-size:10px}
+.abc-rev{font-weight:700;font-size:11px}
+.abc-rot{font-size:9px;color:#94A3B8}
 
-/* Table */
+/* table */
+.tbl-srch{display:flex;gap:8px;margin-bottom:10px}
+.tbl-srch input{border:1px solid #FED7AA;border-radius:5px;padding:6px 10px;font-size:11px;font-family:'DM Sans',sans-serif;outline:none;flex:1}
+.tbl-srch input:focus{border-color:var(--acc)}
 .tbl{width:100%;border-collapse:collapse;font-size:11px}
-.tbl th{background:#FFF7ED;color:#431407;font-weight:700;padding:7px 8px;text-align:left;border-bottom:2px solid #FED7AA;font-size:10px;text-transform:uppercase}
-.tbl td{padding:7px 8px;border-bottom:1px solid #FFF7ED;color:#374151;font-weight:500}
+.tbl thead th{background:#FFF7ED;color:#431407;font-weight:700;padding:7px 10px;text-align:left;border-bottom:2px solid #FED7AA;font-size:9px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.tbl thead th:hover{color:#EA580C}
+.tbl td{padding:7px 10px;border-bottom:1px solid #FFF7ED;color:#374151}
 .tbl tr:hover td{background:#FFF7ED}
-.badge-si{background:#D1FAE5;color:#065F46;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
-.badge-no{background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
-.badge-ri{background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-g{background:#D1FAE5;color:#065F46}
+.badge-r{background:#FEE2E2;color:#991B1B}
+.badge-a{background:#FEF3C7;color:#92400E}
+.pg-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #FED7AA}
+.pg-btn{border:1px solid #FED7AA;background:#fff;border-radius:4px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;color:#64748B}
+.pg-btn:hover{background:#FFF7ED}
 
-.alert-strip{background:#FEF3C7;border-left:4px solid #D97706;padding:10px 24px;font-size:12px;color:#78350F;margin-bottom:4px}
-.footer{background:var(--nav);text-align:center;padding:8px;color:rgba(255,255,255,.4);font-size:10px;letter-spacing:1px}
+/* RAG strip */
+.rag-strip{display:flex;margin:14px 24px 0;border-radius:6px;overflow:hidden;border:1px solid #FED7AA}
+.rag-cell{flex:1;padding:7px 12px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:6px;border-right:1px solid #FED7AA}
+.rag-cell:last-child{border-right:none}
+.rag-cell.r{background:#FEF2F2;color:#DC2626}
+.rag-cell.a{background:#FFFBEB;color:#D97706}
+.rag-cell.g{background:#ECFDF5;color:#059669}
+.rag-dot{width:8px;height:8px;border-radius:50%}
+.rag-dot.r{background:#DC2626}.rag-dot.a{background:#D97706}.rag-dot.g{background:#059669}
+
+/* exec hero */
+.exec-hero{border-radius:8px;padding:20px 24px;display:flex;align-items:center;gap:28px;margin:14px 24px 0}
+.exec-hero h2{font-family:'Raleway',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
+.exec-hero .big{font-family:'Raleway',sans-serif;font-size:36px;font-weight:900;color:#fff;line-height:1}
+.exec-hero .sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px}
+.exec-stats{display:flex;gap:22px;flex-shrink:0}
+.estat .ev{font-family:'Raleway',sans-serif;font-size:22px;font-weight:900;color:var(--acc)}
+.estat .el{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* rag summary cards */
+.rag-summary{display:flex;gap:8px;flex-wrap:wrap;margin:10px 24px 0}
+.rag-item{background:#fff;border-radius:6px;border:1px solid #FED7AA;padding:10px 14px;flex:1;min-width:140px}
+.rag-item .ri-l{font-size:9px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700}
+.rag-item .ri-v{font-size:17px;font-weight:900;color:#0F172A;font-family:'DM Mono',monospace;line-height:1.1}
+.rag-item .ri-s{font-size:10px;font-weight:700;margin-top:4px;display:flex;align-items:center;gap:4px}
+
+/* locked hint */
+.locked-hint{background:#FFF7ED;border:2px dashed #FED7AA;border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;color:#94A3B8;font-size:11px}
+.locked-hint .lk-icon{font-size:22px}
+.locked-hint .lk-title{font-size:12px;font-weight:700;color:#64748B}
+.locked-hint .lk-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+
+/* stock level bar */
+.stk-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #FFF7ED}
+.stk-item:last-child{border:none}
+.stk-name{width:140px;font-weight:600;color:#1E293B;font-size:10px}
+.stk-bar-wrap{flex:1;background:#F1F5F9;border-radius:4px;height:8px;overflow:hidden}
+.stk-bar-fill{height:100%;border-radius:4px}
+.stk-val{width:55px;text-align:right;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* pkg float */
+.pkg-float{position:fixed;bottom:20px;right:20px;font-size:10px;font-weight:800;padding:6px 16px;border-radius:4px;font-family:'DM Mono',monospace;z-index:300;letter-spacing:.5px;cursor:default;transition:all .3s}
+
+/* footer */
+.disclaimer{background:#fff;border-top:1px solid #FED7AA;padding:6px 24px;font-size:9px;color:#94A3B8;text-align:center;margin-top:6px}
+.footer{text-align:center;padding:8px;color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px;font-family:'DM Mono',monospace}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">DATAVISUAL SV</div>
-  <h1>🔧 Dashboard Ejecutivo — Ferretería / 2 Sucursales</h1>
-  <div class="badge">DEMO INTERACTIVA</div>
+<!-- ═══ SELECTOR BAR ═══ -->
+<div class="pkg-bar">
+  <div class="pkg-bar-label">VER DEMO:</div>
+  <button class="pkg-btn sel-s" id="btn-s" onclick="setPkg('s',this)">
+    <div class="pkg-btn-name">01 STARTER</div>
+    <div class="pkg-btn-price">$99 pago único</div>
+    <div class="pkg-btn-desc">1 fuente · 5 KPIs · 3 gráficas</div>
+  </button>
+  <button class="pkg-btn" id="btn-g" onclick="setPkg('g',this)">
+    <div class="pkg-btn-name">02 GROWTH</div>
+    <div class="pkg-btn-price">$199 pago único</div>
+    <div class="pkg-btn-desc">2 fuentes · 10 KPIs · tabla · 2 pestañas</div>
+  </button>
+  <button class="pkg-btn" id="btn-p" onclick="setPkg('p',this)">
+    <div class="pkg-btn-name">03 PRO</div>
+    <div class="pkg-btn-price">$299 pago único</div>
+    <div class="pkg-btn-desc">3 fuentes · KPIs ilimitados · RAG · exportar</div>
+  </button>
 </div>
 
-<div class="sector-bar">
-  <div>
-    <h2>El Tornillo de Oro, S.A.S.</h2>
-    <p>Ferretería Industrial · La Libertad, El Salvador · 2 Sucursales · Mayo 2025</p>
-  </div>
-  <div class="period">📅 Mayo 2025</div>
-</div>
-
-<div class="filters">
-  <label>Sucursal:</label>
-  <select onchange="render()">
-    <option>Ambas sucursales</option>
-    <option>Sucursal Central (Santa Tecla)</option>
-    <option>Sucursal Norte (Quezaltepeque)</option>
-  </select>
-  <label>Período:</label>
-  <select onchange="render()">
-    <option>Mayo 2025</option>
-    <option>Abril 2025</option>
-    <option>Q1 2025</option>
-  </select>
-  <div class="wm">DEMO · datavisualsv.com</div>
-</div>
-
-<div class="kpi-grid">
-  <div class="kpi green"><div class="label">Ventas Totales</div><div class="value">$38,420</div><div class="delta up">▲ 9.2% vs mes ant.</div><div class="sub">ambas sucursales</div></div>
-  <div class="kpi blue"><div class="label">Margen Bruto</div><div class="value">34.8%</div><div class="delta up">▲ 1.2% mejora</div><div class="sub">meta: 35%</div></div>
-  <div class="kpi amber"><div class="label">Cuentas x Cobrar</div><div class="value">$12,840</div><div class="delta dn">▼ 18 clientes</div><div class="sub">crédito activo</div></div>
-  <div class="kpi red"><div class="label">Productos Sin Mov.</div><div class="value">142</div><div class="delta dn">▼ capital frenado</div><div class="sub">+60 días sin venta</div></div>
-  <div class="kpi"><div class="label">Ticket Promedio</div><div class="value">$186</div><div class="delta up">▲ 8% vs abr.</div><div class="sub">por transacción</div></div>
-  <div class="kpi amber"><div class="label">Rotación Inventario</div><div class="value">4.2x</div><div class="delta dn">▼ meta es 5x</div><div class="sub">al año</div></div>
-</div>
-
-<div class="alert-strip">
-  ⚠ <strong>Alertas:</strong> 3 productos principales con stock < 15 unidades · Cliente "Constructora Ávila" con CxC vencida $4,200 a 47 días · Sucursal Norte 12% bajo meta de mayo
-</div>
-
-<div class="row2">
-  <div class="card">
-    <h3>📊 Ventas por Semana — Comparativo Sucursales <span>mayo 2025</span></h3>
-    <canvas id="chartSemanas" height="100"></canvas>
-  </div>
-  <div class="card">
-    <h3>🏪 Desempeño por Sucursal <span>vs meta del mes</span></h3>
-    <div id="sucursales" style="margin-top:8px"></div>
-  </div>
-</div>
-
-<div class="row3">
-  <div class="card">
-    <h3>📦 Análisis ABC Productos <span>pareto 80/20</span></h3>
-    <div id="abcList"></div>
-  </div>
-  <div class="card">
-    <h3>💳 CxC Clientes Crédito <span>estado de cuenta</span></h3>
-    <table class="tbl" id="cxcTable"></table>
-  </div>
-  <div class="card">
-    <h3>📉 Categorías por Margen <span>% rentabilidad</span></h3>
-    <canvas id="chartMargenes" height="180"></canvas>
-  </div>
-</div>
-
-<div style="background:#F1F5F9;padding:6px 20px;font-size:9px;color:#94A3B8;text-align:center;border-top:1px solid #E2E8F0">⚠ Los datos mostrados son de demostración. Los datos reales provienen exclusivamente de las fuentes del cliente. DataVisual SV no garantiza la exactitud de los datos de origen. Las decisiones son responsabilidad exclusiva del cliente. · datavisualsv.com</div>
-<div class="footer">© 2025 DataVisual SV · Demo para El Tornillo de Oro · dashboard@datavisualsv.com</div>
+<div id="root"></div>
 
 <script>
-let charts={};
-function mkChart(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+/* ══════════════════════
+   DATA
+══════════════════════ */
+const PER=['Mayo 2025','Abril 2025','Marzo 2025'];
 
-const semanas=['S1 (1–7)','S2 (8–14)','S3 (15–21)','S4 (22–28)'];
-const sucData=[
-  {nombre:'Central · Santa Tecla',ventas:23800,meta:22000,color:'#EA580C'},
-  {nombre:'Norte · Quezaltepeque',ventas:14620,meta:16500,color:'#2563EB'},
+// Por período: ventas, margen, CxC, sin mov, ticket, rotación, sucursales
+const D=[
+  {vt:38420,mg:34.8,cxc:12840,sinmov:142,tk:186,rot:4.2,meta:40000,gastos:28100,util:10320,
+   semS:[5800,6100,5900,6000],semN:[3600,3800,3700,3522],
+   suc:[{n:'Central · Santa Tecla',v:23800,m:22000,col:'#EA580C'},{n:'Norte · Quezaltepeque',v:14620,m:16500,col:'#2563EB'}],
+   abc:[{c:'A',n:'Cemento Gris 42.5Kg',rev:8240,rot:'Alto',col:'#059669'},{c:'A',n:'Varilla Corrugada 3/8"',rev:5180,rot:'Alto',col:'#059669'},{c:'A',n:'Block 15×20×40cm',rev:4920,rot:'Alto',col:'#059669'},{c:'B',n:'Pintura Látex Galón',rev:2840,rot:'Medio',col:'#D97706'},{c:'B',n:'Cable Thhn #12',rev:2100,rot:'Medio',col:'#D97706'},{c:'C',n:'Masilla Plástica',rev:380,rot:'Bajo',col:'#DC2626'},{c:'C',n:'Sellador Muro 4L',rev:290,rot:'Bajo',col:'#DC2626'}],
+   cxcD:[{cli:'Constructora Ávila',saldo:4200,dias:47,est:'a'},{cli:'Ingeniería Cruz',saldo:2800,dias:22,est:'g'},{cli:'Instalaciones Paz',saldo:1940,dias:35,est:'a'},{cli:'Arquitecto Mejía',saldo:1200,dias:18,est:'g'},{cli:'Maestro Ramos',saldo:840,dias:55,est:'r'},{cli:'Const. Hernández',saldo:620,dias:12,est:'g'},{cli:'Distribuidora Lima',saldo:520,dias:41,est:'a'},{cli:'Taller El Volcán',saldo:240,dias:8,est:'g'}],
+   cats:['Construcción','Plomería','Electricidad','Pintura','Herramienta','Madera'],
+   marg:[38,32,29,26,42,35],
+   inv:[{p:'Cemento 42.5Kg',s:45,min:80,t:'r'},{p:'Varilla 3/8"',s:120,min:60,t:'g'},{p:'Block 15×20×40',s:18,min:50,t:'r'},{p:'Pintura Látex',s:38,min:30,t:'g'},{p:'Cable Thhn #12',s:22,min:25,t:'a'},{p:'Clavos 3"',s:95,min:40,t:'g'},{p:'Tubo PVC 4"',s:12,min:20,t:'r'},{p:'Llave Paso 1/2"',s:35,min:30,t:'g'}]},
+  {vt:35190,mg:33.6,cxc:10240,sinmov:158,tk:172,rot:3.9,meta:38000,gastos:25800,util:9390,
+   semS:[5200,5600,5400,5500],semN:[3100,3400,3300,3200],
+   suc:[{n:'Central · Santa Tecla',v:21700,m:20000,col:'#EA580C'},{n:'Norte · Quezaltepeque',v:13490,m:15000,col:'#2563EB'}],
+   abc:[{c:'A',n:'Cemento Gris 42.5Kg',rev:7600,rot:'Alto',col:'#059669'},{c:'A',n:'Varilla Corrugada 3/8"',rev:4800,rot:'Alto',col:'#059669'},{c:'A',n:'Block 15×20×40cm',rev:4500,rot:'Alto',col:'#059669'},{c:'B',n:'Pintura Látex Galón',rev:2600,rot:'Medio',col:'#D97706'},{c:'B',n:'Cable Thhn #12',rev:1900,rot:'Medio',col:'#D97706'},{c:'C',n:'Masilla Plástica',rev:340,rot:'Bajo',col:'#DC2626'},{c:'C',n:'Sellador Muro 4L',rev:260,rot:'Bajo',col:'#DC2626'}],
+   cxcD:[{cli:'Constructora Ávila',saldo:3800,dias:32,est:'a'},{cli:'Ingeniería Cruz',saldo:2400,dias:18,est:'g'},{cli:'Instalaciones Paz',saldo:1600,dias:28,est:'a'},{cli:'Arquitecto Mejía',saldo:980,dias:14,est:'g'},{cli:'Maestro Ramos',saldo:640,dias:42,est:'r'},{cli:'Const. Hernández',saldo:480,dias:9,est:'g'},{cli:'Distribuidora Lima',saldo:400,dias:35,est:'a'},{cli:'Taller El Volcán',saldo:180,dias:6,est:'g'}],
+   cats:['Construcción','Plomería','Electricidad','Pintura','Herramienta','Madera'],
+   marg:[36,31,28,24,40,33],
+   inv:[{p:'Cemento 42.5Kg',s:62,min:80,t:'a'},{p:'Varilla 3/8"',s:140,min:60,t:'g'},{p:'Block 15×20×40',s:28,min:50,t:'a'},{p:'Pintura Látex',s:42,min:30,t:'g'},{p:'Cable Thhn #12',s:30,min:25,t:'g'},{p:'Clavos 3"',s:110,min:40,t:'g'},{p:'Tubo PVC 4"',s:18,min:20,t:'a'},{p:'Llave Paso 1/2"',s:42,min:30,t:'g'}]},
+  {vt:31840,mg:32.1,cxc:9140,sinmov:171,tk:160,rot:3.6,meta:34000,gastos:23200,util:8640,
+   semS:[4800,5100,5000,4900],semN:[2900,3100,3000,2940],
+   suc:[{n:'Central · Santa Tecla',v:19800,m:18500,col:'#EA580C'},{n:'Norte · Quezaltepeque',v:12040,m:13500,col:'#2563EB'}],
+   abc:[{c:'A',n:'Cemento Gris 42.5Kg',rev:6900,rot:'Alto',col:'#059669'},{c:'A',n:'Varilla Corrugada 3/8"',rev:4300,rot:'Alto',col:'#059669'},{c:'A',n:'Block 15×20×40cm',rev:4100,rot:'Alto',col:'#059669'},{c:'B',n:'Pintura Látex Galón',rev:2300,rot:'Medio',col:'#D97706'},{c:'B',n:'Cable Thhn #12',rev:1700,rot:'Medio',col:'#D97706'},{c:'C',n:'Masilla Plástica',rev:310,rot:'Bajo',col:'#DC2626'},{c:'C',n:'Sellador Muro 4L',rev:230,rot:'Bajo',col:'#DC2626'}],
+   cxcD:[{cli:'Constructora Ávila',saldo:3200,dias:25,est:'g'},{cli:'Ingeniería Cruz',saldo:2100,dias:14,est:'g'},{cli:'Instalaciones Paz',saldo:1400,dias:22,est:'a'},{cli:'Arquitecto Mejía',saldo:820,dias:10,est:'g'},{cli:'Maestro Ramos',saldo:520,dias:38,est:'r'},{cli:'Const. Hernández',saldo:360,dias:7,est:'g'},{cli:'Distribuidora Lima',saldo:340,dias:28,est:'a'},{cli:'Taller El Volcán',saldo:140,dias:4,est:'g'}],
+   cats:['Construcción','Plomería','Electricidad','Pintura','Herramienta','Madera'],
+   marg:[35,30,27,23,39,31],
+   inv:[{p:'Cemento 42.5Kg',s:70,min:80,t:'a'},{p:'Varilla 3/8"',s:155,min:60,t:'g'},{p:'Block 15×20×40',s:35,min:50,t:'a'},{p:'Pintura Látex',s:48,min:30,t:'g'},{p:'Cable Thhn #12',s:35,min:25,t:'g'},{p:'Clavos 3"',s:120,min:40,t:'g'},{p:'Tubo PVC 4"',s:22,min:20,t:'g'},{p:'Llave Paso 1/2"',s:50,min:30,t:'g'}]}
 ];
-const abcItems=[
-  {c:'A',nombre:'Cemento Gris 42.5Kg',rev:'$8,240',rot:'Alto',col:'#059669'},
-  {c:'A',nombre:'Varilla Corrugada 3/8"',rev:'$5,180',rot:'Alto',col:'#059669'},
-  {c:'A',nombre:'Block 15×20×40cm',rev:'$4,920',rot:'Alto',col:'#059669'},
-  {c:'B',nombre:'Pintura Látex Galón',rev:'$2,840',rot:'Medio',col:'#D97706'},
-  {c:'B',nombre:'Cable Thhn #12',rev:'$2,100',rot:'Medio',col:'#D97706'},
-  {c:'C',nombre:'Masilla Plástica',rev:'$380',rot:'Bajo',col:'#DC2626'},
-  {c:'C',nombre:'Sellador Muro 4L',rev:'$290',rot:'Bajo',col:'#DC2626'},
-];
-const cxcData=[
-  {cli:'Constructora Ávila',saldo:'$4,200',dias:'47d',lim:'$5,000',estado:'ri'},
-  {cli:'Ingeniería Cruz',saldo:'$2,800',dias:'22d',lim:'$4,000',estado:'si'},
-  {cli:'Instalaciones Paz',saldo:'$1,940',dias:'35d',lim:'$3,000',estado:'ri'},
-  {cli:'Arquitecto Mejía',saldo:'$1,200',dias:'18d',lim:'$2,500',estado:'si'},
-  {cli:'Maestro Ramos',saldo:'$840',dias:'55d',lim:'$1,000',estado:'no'},
-  {cli:'Const. Hernández',saldo:'$620',dias:'12d',lim:'$2,000',estado:'si'},
-];
-const categorias=['Construcción','Plomería','Electricidad','Pintura','Herramienta','Madera'];
-const margenes=[38,32,29,26,42,35];
+const ANT=[31200,28900,27400]; // ventas año anterior por período
 
-function render(){
-  requestAnimationFrame(()=>{
-    mkChart('chartSemanas',{type:'bar',data:{labels:semanas,datasets:[
-      {label:'Central',data:[5800,6100,5900,6000],backgroundColor:'rgba(234,88,12,.85)',borderRadius:4},
-      {label:'Norte',data:[3600,3800,3700,3522],backgroundColor:'rgba(37,99,235,.75)',borderRadius:4},
-    ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#FFF7ED'}}}}});
+const COLS6=['#431407','#EA580C','#D97706','#059669','#2563EB','#7C3AED'];
+let CHS={},curPkg='s',curPer=0;
+let allRows=[],filtRows=[],sortC=0,sortD=1,pg=0;const PG=9;
 
-    mkChart('chartMargenes',{type:'bar',data:{labels:categorias,
-      datasets:[{label:'Margen %',data:margenes,backgroundColor:margenes.map(m=>m>=35?'rgba(5,150,105,.85)':m>=28?'rgba(217,119,6,.8)':'rgba(220,38,38,.7)'),borderRadius:6}]},
-      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
-        scales:{x:{max:50,ticks:{callback:v=>v+'%'},grid:{color:'#FFF7ED'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
-  });
+function mk(id,cfg){if(CHS[id])CHS[id].destroy();const el=document.getElementById(id);if(!el)return;CHS[id]=new Chart(el,cfg);}
+function expChart(id){const c=CHS[id];if(!c)return;const a=document.createElement('a');a.href=c.toBase64Image();a.download=id+'.png';a.click();}
+function switchTab(id,el){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tabcontent').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  setTimeout(()=>Object.values(CHS).forEach(c=>{try{c.resize()}catch(e){}}),30);
+}
 
-  // Sucursales
-  document.getElementById('sucursales').innerHTML=sucData.map(s=>{
-    const pct=(s.ventas/s.meta*100).toFixed(0);
-    const ok=s.ventas>=s.meta;
+/* ── THEMES ── */
+const TH={
+  s:{topBg:'#431407',acc:'#EA580C',accLight:'#FFF7ED',accText:'#C2410C',accDark:'#431407',
+     badgeTxt:'#fff',floatBg:'#EA580C',floatTxt:'#fff',footBg:'#431407',
+     chip:'background:rgba(234,88,12,.15);border:1px solid rgba(234,88,12,.3);color:#EA580C',
+     name:'STARTER · $99',grid:'#FFF7ED'},
+  g:{topBg:'#052E16',acc:'#10B981',accLight:'#ECFDF5',accText:'#065F46',accDark:'#052E16',
+     badgeTxt:'#052E16',floatBg:'#10B981',floatTxt:'#052E16',footBg:'#052E16',
+     chip:'background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#10B981',
+     name:'GROWTH · $199',grid:'#ECFDF5'},
+  p:{topBg:'#1E1B4B',acc:'#2563EB',accLight:'#EFF6FF',accText:'#1D4ED8',accDark:'#1E1B4B',
+     badgeTxt:'#fff',floatBg:'#2563EB',floatTxt:'#fff',footBg:'#1E1B4B',
+     chip:'background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.3);color:#60A5FA',
+     name:'PRO · $299',grid:'#EFF6FF'},
+};
+
+function applyTheme(T){
+  document.documentElement.style.setProperty('--acc',T.acc);
+  document.documentElement.style.setProperty('--acc-light',T.accLight);
+  document.documentElement.style.setProperty('--acc-dark',T.accDark);
+}
+
+/* ── PKG SWITCH ── */
+function setPkg(pkg,btn){
+  if(pkg===curPkg)return;
+  const root=document.getElementById('root');
+  root.classList.add('fading');
+  setTimeout(()=>{
+    Object.values(CHS).forEach(c=>{try{c.destroy()}catch(e){}});CHS={};
+    curPkg=pkg;curPer=0;pg=0;
+    document.querySelectorAll('.pkg-btn').forEach(b=>b.className='pkg-btn');
+    btn.classList.add('sel-'+pkg);
+    applyTheme(TH[pkg]);
+    render();
+    root.classList.remove('fading');
+  },200);
+}
+
+/* ── KPI HELPERS ── */
+function kpi(lbl,val,delta,sub,ragCls,color){
+  const dir=ragCls==='g'?'up':ragCls==='r'?'dn':'neutral';
+  return `<div class="kpi">
+    <div class="kpi-accent" style="background:${color}"></div>
+    <div class="kpi-lbl">${lbl}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-delta ${dir}">${delta}</div>
+    <div class="kpi-sub">${sub}</div>
+  </div>`;
+}
+function kpiT(lbl,val,delta,sub,cls,color,tl){
+  const dir=cls==='g'?'up':cls==='r'?'dn':'neutral';
+  return `<div class="kpi">
+    <div class="kpi-accent" style="background:${color}"></div>
+    <div class="kpi-thresh ${cls}">${tl}</div>
+    <div class="kpi-lbl">${lbl}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-delta ${dir}">${delta}</div>
+    <div class="kpi-sub">${sub}</div>
+  </div>`;
+}
+function kpiR(lbl,val,delta,sub,cls,color){
+  const dir=cls==='g'?'up':cls==='r'?'dn':'neutral';
+  return `<div class="kpi">
+    <div class="kpi-accent" style="background:${color}"></div>
+    <div class="kpi-rag ${cls}"></div>
+    <div class="kpi-lbl">${lbl}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-delta ${dir}">${delta}</div>
+    <div class="kpi-sub">${sub}</div>
+  </div>`;
+}
+
+/* ── SUC ROWS ── */
+function buildSuc(d){
+  return d.suc.map(s=>{
+    const pct=(s.v/s.m*100).toFixed(0);
+    const ok=s.v>=s.m;
     return `<div class="suc-row">
-      <div class="suc-name">${s.nombre.split('·')[0]}<br><span style="font-size:10px;color:#94A3B8">· ${s.nombre.split('·')[1]}</span></div>
+      <div class="suc-name">${s.n.split('·')[0].trim()}<br><span style="font-size:9px;color:#94A3B8">· ${s.n.split('·')[1]?.trim()}</span></div>
       <div class="suc-detail">
-        <div class="suc-bar-wrap"><div class="suc-bar" style="width:${Math.min(pct,100)}%;background:${ok?s.color:'#EF4444'}"></div></div>
-        <div class="suc-meta"><span>${pct}% de meta</span><span>Meta: $${s.meta.toLocaleString()}</span></div>
+        <div class="suc-bar-wrap"><div class="suc-bar-fill" style="width:${Math.min(pct,100)}%;background:${ok?s.col:'#DC2626'}"></div></div>
+        <div class="suc-meta"><span>${pct}% de meta</span><span>Meta: $${s.m.toLocaleString()}</span></div>
       </div>
-      <div class="suc-val" style="color:${ok?'#059669':'#DC2626'}">$${(s.ventas/1000).toFixed(1)}K</div>
+      <div class="suc-val" style="color:${ok?'#059669':'#DC2626'}">$${(s.v/1000).toFixed(1)}K</div>
     </div>`;
   }).join('');
-
-  // ABC
-  document.getElementById('abcList').innerHTML=abcItems.map(a=>`
-    <div class="abc-item">
-      <div class="abc-badge" style="background:${a.col}">${a.c}</div>
-      <div class="abc-name">${a.nombre}</div>
-      <div>
-        <div class="abc-rev" style="color:${a.col}">${a.rev}</div>
-        <div class="abc-rot">${a.rot}</div>
-      </div>
-    </div>`).join('');
-
-  // CxC
-  document.getElementById('cxcTable').innerHTML=`<thead><tr><th>Cliente</th><th>Saldo</th><th>Días</th><th>Estado</th></tr></thead><tbody>`+
-    cxcData.map(c=>`<tr><td style="font-size:10px">${c.cli}</td><td style="font-weight:700;color:${c.estado==='no'?'#DC2626':c.estado==='ri'?'#D97706':'#059669'}">${c.saldo}</td><td>${c.dias}</td>
-      <td><span class="${c.estado==='no'?'badge-no':c.estado==='ri'?'badge-ri':'badge-si'}">${c.estado==='no'?'VENCIDA':c.estado==='ri'?'RIESGO':'AL DÍA'}</span></td></tr>`).join('')+'</tbody>';
 }
+
+/* ── ABC ── */
+function buildAbc(d){
+  return d.abc.map(a=>`<div class="abc-item">
+    <div class="abc-badge" style="background:${a.col}">${a.c}</div>
+    <div class="abc-name">${a.n}</div>
+    <div>
+      <div class="abc-rev" style="color:${a.col}">$${a.rev.toLocaleString()}</div>
+      <div class="abc-rot">${a.rot}</div>
+    </div>
+  </div>`).join('');
+}
+
+/* ── CXC TABLE ── */
+function buildCxcTable(d,id='cxcTbl'){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=`<thead><tr><th>Cliente</th><th>Saldo</th><th>Días</th><th>Estado</th></tr></thead><tbody>`+
+    d.cxcD.map(c=>`<tr>
+      <td style="font-size:10px;font-weight:600">${c.cli}</td>
+      <td style="font-weight:700;color:${c.est==='r'?'#DC2626':c.est==='a'?'#D97706':'#059669'}">$${c.saldo.toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px">${c.dias}d</td>
+      <td><span class="badge badge-${c.est}">${c.est==='r'?'VENCIDA':c.est==='a'?'RIESGO':'AL DÍA'}</span></td>
+    </tr>`).join('')+'</tbody>';
+}
+
+/* ── NAVEGABLE TABLE (growth+pro) ── */
+function genRows(d){
+  const prods=d.abc.map(a=>a.n);
+  const cats=['Construcción','Plomería','Electricidad','Herramientas','Pintura'];
+  const est=['g','g','g','a','r'];
+  const rows=[];const base=new Date(2025,4,31);
+  for(let i=0;i<55;i++){
+    const dt=new Date(base);dt.setDate(base.getDate()-i);
+    const p=prods[i%prods.length];
+    const cat=cats[i%cats.length];
+    const u=Math.floor(2+Math.random()*25);
+    const pr=parseFloat((15+Math.random()*120).toFixed(2));
+    const tot=parseFloat((u*pr).toFixed(2));
+    const mar=Math.floor(22+Math.random()*25);
+    const e=est[Math.floor(Math.random()*est.length)];
+    rows.push({f:dt.toLocaleDateString('es-SV'),prod:p,cat,suc:i%2===0?'Central':'Norte',u,tot,mar,e});
+  }
+  return rows;
+}
+function renderTbl(){
+  const b=document.getElementById('tblBody');if(!b)return;
+  const s=pg*PG,sl=filtRows.slice(s,s+PG);
+  const T=TH[curPkg];
+  b.innerHTML=sl.map(r=>`<tr>
+    <td style="font-family:'DM Mono',monospace;font-size:10px">${r.f}</td>
+    <td style="font-weight:600;font-size:10px">${r.prod}</td>
+    <td>${r.cat}</td>
+    <td>${r.suc}</td>
+    <td style="text-align:center">${r.u}</td>
+    <td style="font-weight:700;color:${T.acc}">$${r.tot.toFixed(2)}</td>
+    <td>${r.mar}%</td>
+    <td><span class="badge badge-${r.e}">${r.e==='g'?'✓ Cobrado':r.e==='a'?'Pendiente':'⚠ Mora'}</span></td>
+  </tr>`).join('');
+  const pi=document.getElementById('pgInfo');
+  if(pi)pi.textContent=`Pág. ${pg+1}/${Math.ceil(filtRows.length/PG)} · ${filtRows.length} reg.`;
+}
+function filterTbl(){
+  const q=(document.getElementById('tblSearch')||{}).value||'';
+  filtRows=q.toLowerCase()?allRows.filter(r=>r.prod.toLowerCase().includes(q.toLowerCase())||r.cat.toLowerCase().includes(q.toLowerCase())||r.suc.toLowerCase().includes(q.toLowerCase())):allRows.slice();
+  pg=0;renderTbl();
+}
+function sortTbl(c){if(sortC===c)sortD*=-1;else{sortC=c;sortD=1;}const k=['f','prod','cat','suc','u','tot','mar','e'];filtRows.sort((a,b)=>a[k[c]]<b[k[c]]?-sortD:a[k[c]]>b[k[c]]?sortD:0);pg=0;renderTbl();}
+function prevPg(){if(pg>0){pg--;renderTbl();}}
+function nextPg(){if((pg+1)*PG<filtRows.length){pg++;renderTbl();}}
+
+/* ── RAG ITEM ── */
+function ragItem(label,val,cls,sub){
+  const clr={g:'#059669',a:'#D97706',r:'#DC2626'};
+  return `<div class="rag-item">
+    <div class="ri-l">${label}</div>
+    <div class="ri-v">${val}</div>
+    <div class="ri-s" style="color:${clr[cls]}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${clr[cls]};display:inline-block"></span>${sub}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════
+   STARTER
+══════════════════════ */
+function buildStarter(T){
+  const d=D[curPer];
+  const pct=((d.vt/d.meta-1)*100).toFixed(1);
+  const alertMsg=[];
+  if(d.inv.filter(x=>x.t==='r').length)alertMsg.push(`${d.inv.filter(x=>x.t==='r').length} productos con stock crítico`);
+  if(d.cxcD.some(x=>x.est==='r'))alertMsg.push(`CxC vencida — ${d.cxcD.find(x=>x.est==='r').cli}`);
+  if(d.suc.some(s=>s.v<s.m))alertMsg.push(`Sucursal Norte 12% bajo meta`);
+
+  return `
+  <div class="topbar" style="background:${T.topBg}">
+    <div class="brand">DATAVISUAL SV</div>
+    <div class="top-title" style="font-family:'DM Sans',sans-serif">🔧 Dashboard Ferretería — El Tornillo de Oro</div>
+    <div class="pkg-badge" style="background:${T.acc};color:${T.badgeTxt}">STARTER · $99</div>
+  </div>
+  <div class="subbar" style="background:${T.topBg}">
+    <div class="subbar-info">
+      <h2>El Tornillo de Oro, S.A.S.</h2>
+      <p>Ferretería Industrial · La Libertad, El Salvador · 2 Sucursales · 1 fuente de datos</p>
+    </div>
+    <div class="subbar-right">
+      <div class="src-chip" style="${T.chip}">📂 Ventas XLS</div>
+      <div class="per-chip">📅 ${PER[curPer]}</div>
+    </div>
+  </div>
+  <div class="filters">
+    <span class="f-lbl">Período:</span>
+    <select onchange="curPer=parseInt(this.value);render()">
+      ${PER.map((p,i)=>`<option value="${i}" ${i===curPer?'selected':''}>${p}</option>`).join('')}
+    </select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Sucursal:</span>
+    <select><option>Ambas sucursales</option><option>Central (Santa Tecla)</option><option>Norte (Quezaltepeque)</option></select>
+    <div class="f-space"></div>
+    <div class="f-wm">DEMO · datavisualsv.com</div>
+  </div>
+  <div class="alert-bar ${alertMsg.length?'warn':'ok'}">
+    ${alertMsg.length?'⚠ <b>Alertas:</b> '+alertMsg.join(' · '):'✅ Sin alertas críticas este período.'}
+  </div>
+  <div class="kpi-grid-5">
+    ${kpi('Ventas Totales','$'+d.vt.toLocaleString(),(pct>0?'▲ '+pct:'▼ '+Math.abs(pct))+'% vs meta','ambas sucursales',d.vt>=d.meta?'g':'r',T.acc)}
+    ${kpi('Margen Bruto',d.mg+'%',d.mg>=35?'✓ Sobre meta':'▼ vs meta 35%','rentabilidad',d.mg>=35?'g':d.mg>=32?'a':'r','#2563EB')}
+    ${kpi('CxC Activa','$'+d.cxc.toLocaleString(),'▼ '+d.cxcD.filter(x=>x.est==='r').length+' vencidas','clientes crédito',d.cxcD.some(x=>x.est==='r')?'r':'a','#D97706')}
+    ${kpi('Prod. Sin Mov.',d.sinmov,'▼ capital frenado','+60 días sin venta','r','#DC2626')}
+    ${kpi('Ticket Promedio','$'+d.tk,'▲ vs mes anterior','por transacción','g',T.acc)}
+  </div>
+  <div class="g2" style="padding-top:4px">
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📊 Ventas Semanales — Comparativo Sucursales</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Barras</div></div>
+      <canvas id="cSemanas" height="100"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">🏪 Desempeño por Sucursal</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">vs meta</div></div>
+      <div id="sucRows" style="margin-top:6px">${buildSuc(d)}</div>
+    </div>
+  </div>
+  <div class="g2" style="padding-top:0;padding-bottom:4px">
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📉 Margen por Categoría</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">% rentabilidad</div></div>
+      <canvas id="cMargenes" height="120"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📦 Análisis ABC Productos</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Pareto 80/20</div></div>
+      <div id="abcList">${buildAbc(d)}</div>
+    </div>
+  </div>
+  <!-- LOCKED HINTS -->
+  <div class="g2" style="padding-top:0;padding-bottom:4px">
+    <div class="locked-hint">
+      <div class="lk-icon">🔒</div>
+      <div class="lk-title">Tabla de Transacciones Navegable</div>
+      <div style="font-size:10px;color:#94A3B8">Búsqueda, orden por columna y detalle de cada venta con estado de cobranza.</div>
+      <div class="lk-badge" style="background:#ECFDF5;color:#065F46;margin-top:4px">Disponible en GROWTH $199 →</div>
+    </div>
+    <div class="locked-hint">
+      <div class="lk-icon">🔒</div>
+      <div class="lk-title">2 Pestañas · 10 KPIs con Umbrales · CxC Detallada</div>
+      <div style="font-size:10px;color:#94A3B8">Pestaña Ventas + Costos. Indicadores configurados con alertas automáticas.</div>
+      <div class="lk-badge" style="background:#ECFDF5;color:#065F46;margin-top:4px">Disponible en GROWTH $199 →</div>
+    </div>
+  </div>
+  <div class="gfull" style="padding-bottom:16px">
+    <div class="locked-hint" style="flex-direction:row;justify-content:center;gap:16px;padding:14px 20px">
+      <div class="lk-icon" style="font-size:18px">🔒</div>
+      <div style="text-align:left">
+        <div class="lk-title">Panel Ejecutivo 30s · RAG automático · Año anterior vs actual · Inventario detallado · Exportación PNG · 5 pestañas · URL propia</div>
+        <div style="font-size:10px;color:#94A3B8;margin-top:2px">Sala de mando completa con KPIs ilimitados por sucursal, por categoría y por vendedor.</div>
+      </div>
+      <div class="lk-badge" style="background:#EFF6FF;color:#1D4ED8;white-space:nowrap;align-self:center">Disponible en PRO $299 →</div>
+    </div>
+  </div>
+  <div class="disclaimer">⚠ Datos de demostración. Los datos reales provienen de las fuentes del cliente. · datavisualsv.com</div>
+  <div class="footer" style="background:${T.footBg}">© 2025 DataVisual SV · Paquete STARTER · 1 ronda de ajustes · hola@datavisualsv.com</div>`;
+}
+
+/* ══════════════════════
+   GROWTH
+══════════════════════ */
+function buildGrowth(T){
+  const d=D[curPer];
+  const pct=((d.vt/d.meta-1)*100).toFixed(1);
+  const pctAnt=curPer<2?((d.vt/D[curPer+1].vt-1)*100).toFixed(1):'—';
+
+  return `
+  <div class="topbar" style="background:${T.topBg}">
+    <div class="brand">DATAVISUAL SV</div>
+    <div class="top-title" style="font-family:'Syne',sans-serif;letter-spacing:.5px">🔧 El Tornillo de Oro — Control Real del Negocio</div>
+    <div class="pkg-badge" style="background:${T.acc};color:${T.badgeTxt}">GROWTH · $199</div>
+  </div>
+  <div class="subbar" style="background:${T.topBg}">
+    <div class="subbar-info">
+      <h2 style="font-family:'Syne',sans-serif">El Tornillo de Oro, S.A.S.</h2>
+      <p>Ferretería · La Libertad · 2 fuentes integradas: Ventas + Costos / CxC</p>
+    </div>
+    <div class="subbar-right">
+      <div class="src-chip" style="${T.chip}">📂 Ventas XLS</div>
+      <div class="src-chip" style="${T.chip}">📂 CxC / Costos</div>
+      <div class="per-chip">📅 ${PER[curPer]}</div>
+    </div>
+  </div>
+  <div class="filters">
+    <span class="f-lbl">Período:</span>
+    <select onchange="curPer=parseInt(this.value);render()">
+      ${PER.map((p,i)=>`<option value="${i}" ${i===curPer?'selected':''}>${p}</option>`).join('')}
+    </select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Sucursal:</span>
+    <select><option>Ambas</option><option>Central</option><option>Norte</option></select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Categoría:</span>
+    <select><option>Todas</option><option>Construcción</option><option>Plomería</option><option>Electricidad</option><option>Pintura</option></select>
+    <div class="f-space"></div>
+    <div class="f-wm">DEMO · datavisualsv.com</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('gv',this)">📈 Ventas <span class="tab-pill">5 KPIs</span></div>
+    <div class="tab" onclick="switchTab('gc',this)">💳 Costos / CxC <span class="tab-pill">5 KPIs</span></div>
+  </div>
+
+  <!-- TAB VENTAS -->
+  <div id="tab-gv" class="tabcontent active">
+    <div class="alert-bar ${d.suc.some(s=>s.v<s.m)||d.cxcD.some(x=>x.est==='r')?'warn':'ok'}">
+      ${d.suc.some(s=>s.v<s.m)||d.cxcD.some(x=>x.est==='r')
+        ?`⚠ <b>Alertas:</b> ${[d.suc.some(s=>s.v<s.m)?'Sucursal Norte bajo meta':'',d.cxcD.some(x=>x.est==='r')?'CxC vencida '+d.cxcD.find(x=>x.est==='r').cli:'',d.inv.filter(x=>x.t==='r').length?d.inv.filter(x=>x.t==='r').length+' productos stock crítico':''].filter(Boolean).join(' · ')}`
+        :'✅ Sin alertas críticas este período.'}
+    </div>
+    <div class="kpi-grid-5">
+      ${kpiT('Ventas Totales','$'+d.vt.toLocaleString(),(pct>0?'▲ '+pct:'▼ '+Math.abs(pct))+'% vs meta','Meta $'+d.meta.toLocaleString(),d.vt>=d.meta?'g':'r',T.acc,d.vt>=d.meta?'✓ OK':'⚠ BAJO')}
+      ${kpiT('Margen Bruto',d.mg+'%','Umbral ≥ 35%','rentabilidad',d.mg>=35?'g':d.mg>=32?'a':'r','#2563EB',d.mg>=35?'✓ OK':d.mg>=32?'~ REVISAR':'⚠ BAJO')}
+      ${kpiT('Ticket Promedio','$'+d.tk,pctAnt!=='—'?(pctAnt>0?'▲ '+pctAnt:'▼ '+Math.abs(pctAnt))+'% vs ant.':'Primer período','por transacción','g',T.acc,'✓ OK')}
+      ${kpiT('Suc. Central','$'+(d.suc[0].v/1000).toFixed(1)+'K',((d.suc[0].v/d.suc[0].m-1)*100).toFixed(1)+'% vs meta','Santa Tecla',d.suc[0].v>=d.suc[0].m?'g':'r',T.acc,d.suc[0].v>=d.suc[0].m?'✓ OK':'⚠ BAJO')}
+      ${kpiT('Suc. Norte','$'+(d.suc[1].v/1000).toFixed(1)+'K',((d.suc[1].v/d.suc[1].m-1)*100).toFixed(1)+'% vs meta','Quezaltepeque',d.suc[1].v>=d.suc[1].m?'g':'r','#2563EB',d.suc[1].v>=d.suc[1].m?'✓ OK':'⚠ BAJO')}
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Ventas por Semana — Sucursales</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Barras</div></div>
+        <canvas id="cSemanas" height="100"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">🏪 Desempeño por Sucursal</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">vs meta</div></div>
+        <div id="sucRows" style="margin-top:6px">${buildSuc(d)}</div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📈 Tendencia Mensual</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Línea</div></div>
+        <canvas id="cTrend" height="130"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Comparativo 3 meses</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Barras</div></div>
+        <canvas id="cComp" height="130"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📉 Margen por Categoría</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Horizontal</div></div>
+        <canvas id="cMargenes" height="130"></canvas>
+      </div>
+    </div>
+    <!-- TABLA NAVEGABLE -->
+    <div class="gfull" style="padding-bottom:6px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📋 Detalle de Ventas <span style="font-size:10px;color:#64748B;font-weight:400">(búsqueda · orden por columna · paginación)</span></div></div>
+        <div class="tbl-srch">
+          <input type="text" id="tblSearch" placeholder="🔍 Buscar producto, categoría, sucursal…" oninput="filterTbl()">
+          <span id="pgInfo" style="font-size:10px;color:#64748B;white-space:nowrap"></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr>
+              <th onclick="sortTbl(0)">Fecha ▾</th><th onclick="sortTbl(1)">Producto</th>
+              <th onclick="sortTbl(2)">Categoría</th><th onclick="sortTbl(3)">Sucursal</th>
+              <th onclick="sortTbl(4)">Unidades</th><th onclick="sortTbl(5)">Total $</th>
+              <th onclick="sortTbl(6)">Margen %</th><th onclick="sortTbl(7)">Estado</th>
+            </tr></thead>
+            <tbody id="tblBody"></tbody>
+          </table>
+        </div>
+        <div class="pg-row">
+          <button class="pg-btn" onclick="prevPg()">← Anterior</button>
+          <span id="pgInfo2" style="font-size:10px;color:#64748B"></span>
+          <button class="pg-btn" onclick="nextPg()">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+    <!-- locked PRO -->
+    <div class="gfull" style="padding-bottom:16px">
+      <div class="locked-hint" style="flex-direction:row;justify-content:center;gap:16px;padding:14px 20px">
+        <div class="lk-icon" style="font-size:18px">🔒</div>
+        <div style="text-align:left">
+          <div class="lk-title">Panel Ejecutivo · RAG automático · Año anterior · Inventario por sucursal · Exportación PNG · 5 pestañas · URL personalizada</div>
+          <div style="font-size:10px;color:#94A3B8;margin-top:2px">Sala de mando con alertas que hablan solas y comparativo interanual completo.</div>
+        </div>
+        <div class="lk-badge" style="background:#EFF6FF;color:#1D4ED8;white-space:nowrap;align-self:center">Disponible en PRO $299 →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB COSTOS/CXC -->
+  <div id="tab-gc" class="tabcontent">
+    <div class="kpi-grid-5">
+      ${kpiT('Gastos Totales','$'+d.gastos.toLocaleString(),((d.gastos/d.vt)*100).toFixed(1)+'% de ventas','Compras + Nómina','a','#D97706','Revisar')}
+      ${kpiT('Utilidad Bruta','$'+d.util.toLocaleString(),d.mg+'% margen','Ventas − Gastos',d.mg>=35?'g':d.mg>=32?'a':'r',T.acc,d.mg>=35?'✓ OK':'~ BAJO')}
+      ${kpiT('CxC Total','$'+d.cxc.toLocaleString(),'▼ '+d.cxcD.filter(x=>x.est==='r').length+' vencidas','clientes crédito',d.cxcD.some(x=>x.est==='r')?'r':'a','#DC2626',d.cxcD.some(x=>x.est==='r')?'⚠ VENC.':'~ Atención')}
+      ${kpiT('Prod. Sin Mov.',d.sinmov,'▼ capital frenado','+60 días sin venta','r','#DC2626','⚠ ALTO')}
+      ${kpiT('Rotación Inv.',d.rot+'x','Meta: 5x','al año',d.rot>=5?'g':d.rot>=4?'a':'r',T.acc,d.rot>=5?'✓ OK':d.rot>=4?'~ Bajo':'⚠ BAJO')}
+    </div>
+    <div class="g2" style="padding-bottom:14px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">💳 CxC Clientes Crédito</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Estado de cuenta</div></div>
+        <table class="tbl" id="cxcTbl"></table>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📦 Análisis ABC</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Pareto 80/20</div></div>
+        <div id="abcList">${buildAbc(d)}</div>
+      </div>
+    </div>
+  </div>
+  <div class="disclaimer">⚠ Datos de demostración. Los datos reales provienen de las fuentes del cliente. · datavisualsv.com</div>
+  <div class="footer" style="background:${T.footBg}">© 2025 DataVisual SV · Paquete GROWTH · URL Netlify + capacitación 45 min + 2 rondas de ajustes · hola@datavisualsv.com</div>`;
+}
+
+/* ══════════════════════
+   PRO
+══════════════════════ */
+function buildPro(T){
+  const d=D[curPer];
+  const pct=((d.vt/d.meta-1)*100).toFixed(1);
+  const pctAnt=((d.vt/ANT[curPer]-1)*100).toFixed(1);
+  const crit=d.inv.filter(x=>x.t==='r').length;
+  const venc=d.cxcD.filter(x=>x.est==='r').length;
+
+  return `
+  <div class="topbar" style="background:${T.topBg}">
+    <div class="brand">DATAVISUAL SV</div>
+    <div class="top-title" style="font-family:'Raleway',sans-serif;font-weight:800;letter-spacing:.5px">🔧 El Tornillo de Oro — Sala de Mando Ejecutiva</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:${T.acc};opacity:.7">dashboard.eldetornillodeoro.com</div>
+      <div class="pkg-badge" style="background:${T.acc};color:${T.badgeTxt}">PRO · $299</div>
+    </div>
+  </div>
+  <div class="subbar" style="background:${T.topBg}">
+    <div class="subbar-info">
+      <h2 style="font-family:'Raleway',sans-serif">El Tornillo de Oro, S.A.S.</h2>
+      <p>Ferretería · La Libertad · 3 fuentes integradas · Sistema RAG activo · ${PER[curPer]}</p>
+    </div>
+    <div class="subbar-right">
+      <div class="src-chip" style="${T.chip}">📂 POS Ventas</div>
+      <div class="src-chip" style="${T.chip}">📂 CxC / Banco</div>
+      <div class="src-chip" style="${T.chip}">📂 Inventario</div>
+      <div class="per-chip">📅 ${PER[curPer]}</div>
+    </div>
+  </div>
+  <div class="filters">
+    <span class="f-lbl">Período:</span>
+    <select onchange="curPer=parseInt(this.value);render()">
+      ${PER.map((p,i)=>`<option value="${i}" ${i===curPer?'selected':''}>${p}</option>`).join('')}
+    </select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Sucursal:</span>
+    <select><option>Ambas</option><option>Central</option><option>Norte</option></select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Vendedor:</span>
+    <select><option>Todos</option><option>Martínez, R.</option><option>López, K.</option><option>Flores, M.</option></select>
+    <div class="f-sep"></div>
+    <span class="f-lbl">Categoría:</span>
+    <select><option>Todas</option><option>Construcción</option><option>Plomería</option><option>Electricidad</option></select>
+    <div class="f-space"></div>
+    <div class="f-wm">PRO · datavisualsv.com</div>
+  </div>
+  <!-- 5 TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('pe',this)">🏛️ Ejecutivo <span class="tab-pill">30s</span></div>
+    <div class="tab" onclick="switchTab('pv',this)">📈 Ventas <span class="tab-pill">RAG</span></div>
+    <div class="tab" onclick="switchTab('pc',this)">💳 Costos / CxC <span class="tab-pill">RAG</span></div>
+    <div class="tab" onclick="switchTab('pi',this)">📦 Inventario <span class="tab-pill">RAG</span></div>
+    <div class="tab" onclick="switchTab('ps',this)">🏪 Sucursales <span class="tab-pill">KPIs</span></div>
+  </div>
+
+  <!-- ── EJECUTIVO ── -->
+  <div id="tab-pe" class="tabcontent active">
+    <div class="exec-hero" style="background:${T.topBg}">
+      <div style="flex:1">
+        <h2>Ventas Totales</h2>
+        <div class="big">$${d.vt.toLocaleString()}</div>
+        <div class="sub">vs Meta $${d.meta.toLocaleString()} · ${pct>0?'+':''}${pct}% · vs 2024: ${pctAnt>0?'+':''}${pctAnt}%</div>
+      </div>
+      <div class="exec-stats">
+        <div class="estat"><div class="ev">${d.mg}%</div><div class="el">Margen</div></div>
+        <div class="estat"><div class="ev">$${d.tk}</div><div class="el">Ticket Prom.</div></div>
+        <div class="estat"><div class="ev">${d.rot}x</div><div class="el">Rotación</div></div>
+      </div>
+    </div>
+    <div class="rag-summary">
+      ${ragItem('Ventas vs Meta',pct>0?'+'+pct+'%':pct+'%',d.vt>=d.meta?'g':'r',d.vt>=d.meta?'✓ Superado':'⚠ Bajo meta')}
+      ${ragItem('Margen Bruto',d.mg+'%',d.mg>=35?'g':d.mg>=32?'a':'r',d.mg>=35?'✓ Sobre 35%':'⚠ Bajo meta')}
+      ${ragItem('CxC Vencida',venc+' clientes',venc>0?'r':'g',venc>0?'⚠ Cobrar YA':'✓ Al día')}
+      ${ragItem('Stock Crítico',crit+' items',crit>0?'r':'g',crit>0?'⚠ Pedir HOY':'✓ OK')}
+      ${ragItem('Suc. Norte',((d.suc[1].v/d.suc[1].m-1)*100).toFixed(1)+'%',d.suc[1].v>=d.suc[1].m?'g':'r',d.suc[1].v>=d.suc[1].m?'✓ Meta OK':'⚠ Bajo meta')}
+      ${ragItem('vs Año Anterior',pctAnt>0?'+'+pctAnt+'%':pctAnt+'%',pctAnt>0?'g':'r',pctAnt>0?'✓ Mejor 2024':'▼ Peor 2024')}
+    </div>
+    <div class="g21" style="padding-top:12px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📈 Ventas 2025 vs 2024 + Proyección</div><button class="exp-btn" onclick="expChart('cProj')">⬇ PNG</button></div>
+        <canvas id="cProj" height="100"></canvas>
+        <p style="font-size:9px;color:#94A3B8;font-style:italic;margin-top:6px">* Proyección basada en tendencia de últimos 3 meses. No garantía financiera.</p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">🏪 Comparativo Sucursales vs 2024</div><button class="exp-btn" onclick="expChart('cYearComp')">⬇ PNG</button></div>
+        <canvas id="cYearComp" height="140"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VENTAS ── -->
+  <div id="tab-pv" class="tabcontent">
+    <div class="rag-strip">
+      <div class="rag-cell ${d.vt>=d.meta?'g':'r'}"><div class="rag-dot ${d.vt>=d.meta?'g':'r'}"></div>${d.vt>=d.meta?'🟢 Ventas sobre meta':'🔴 Ventas bajo meta'}</div>
+      <div class="rag-cell ${d.suc[1].v>=d.suc[1].m?'g':'r'}"><div class="rag-dot ${d.suc[1].v>=d.suc[1].m?'g':'r'}"></div>${d.suc[1].v>=d.suc[1].m?'🟢':'🔴'} Suc. Norte ${((d.suc[1].v/d.suc[1].m-1)*100).toFixed(1)}%</div>
+      <div class="rag-cell ${pctAnt>0?'g':'r'}"><div class="rag-dot ${pctAnt>0?'g':'r'}"></div>${pctAnt>0?'🟢':'🔴'} vs 2024: ${pctAnt>0?'+':''}${pctAnt}%</div>
+      <div class="rag-cell ${d.mg>=35?'g':d.mg>=32?'a':'r'}"><div class="rag-dot ${d.mg>=35?'g':d.mg>=32?'a':'r'}"></div>Margen ${d.mg}% — ${d.mg>=35?'✓ OK':'⚠ Revisar'}</div>
+    </div>
+    <div class="kpi-grid-free">
+      ${kpiR('Ventas Totales','$'+d.vt.toLocaleString(),(pct>0?'▲ '+pct:'▼ '+Math.abs(pct))+'% vs meta','Meta $'+d.meta.toLocaleString(),d.vt>=d.meta?'g':'r',T.acc)}
+      ${kpiR('vs Año Anterior',(pctAnt>0?'+':'')+pctAnt+'%','$'+ANT[curPer].toLocaleString()+' en 2024','mismo período',pctAnt>0?'g':'r',T.acc)}
+      ${kpiR('Margen Bruto',d.mg+'%','Umbral ≥ 35%','rentabilidad',d.mg>=35?'g':d.mg>=32?'a':'r','#2563EB')}
+      ${kpiR('Ticket Promedio','$'+d.tk,'▲ vs mes anterior','por transacción','g',T.acc)}
+      ${kpiR('Suc. Central','$'+(d.suc[0].v/1000).toFixed(1)+'K',((d.suc[0].v/d.suc[0].m-1)*100).toFixed(1)+'% vs meta','Santa Tecla',d.suc[0].v>=d.suc[0].m?'g':'r',T.acc)}
+      ${kpiR('Suc. Norte','$'+(d.suc[1].v/1000).toFixed(1)+'K',((d.suc[1].v/d.suc[1].m-1)*100).toFixed(1)+'% vs meta','Quezaltepeque',d.suc[1].v>=d.suc[1].m?'g':'r','#2563EB')}
+    </div>
+    <div class="g21">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Semanas — Sucursales vs 2024</div><button class="exp-btn" onclick="expChart('cSemanas')">⬇ PNG</button></div>
+        <canvas id="cSemanas" height="100"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📦 ABC Productos</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Pareto</div></div>
+        <div id="abcList">${buildAbc(d)}</div>
+      </div>
+    </div>
+    <div class="g3" style="padding-bottom:14px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📈 Tendencia 2025 vs 2024</div><button class="exp-btn" onclick="expChart('cTrend')">⬇ PNG</button></div>
+        <canvas id="cTrend" height="130"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Comparativo 3 meses</div><button class="exp-btn" onclick="expChart('cComp')">⬇ PNG</button></div>
+        <canvas id="cComp" height="130"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📉 Margen por Categoría</div><button class="exp-btn" onclick="expChart('cMargenes')">⬇ PNG</button></div>
+        <canvas id="cMargenes" height="130"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COSTOS / CXC ── -->
+  <div id="tab-pc" class="tabcontent">
+    <div class="rag-strip">
+      <div class="rag-cell ${venc>0?'r':'g'}"><div class="rag-dot ${venc>0?'r':'g'}"></div>${venc>0?'🔴 '+venc+' CxC vencida':'🟢 CxC al día'}</div>
+      <div class="rag-cell ${d.mg>=35?'g':d.mg>=32?'a':'r'}"><div class="rag-dot ${d.mg>=35?'g':d.mg>=32?'a':'r'}"></div>Margen ${d.mg}% — ${d.mg>=35?'✓ OK':'⚠ Bajo 35%'}</div>
+      <div class="rag-cell ${d.rot>=5?'g':d.rot>=4?'a':'r'}"><div class="rag-dot ${d.rot>=5?'g':d.rot>=4?'a':'r'}"></div>Rotación ${d.rot}x — ${d.rot>=5?'✓ OK':'⚠ Meta 5x'}</div>
+    </div>
+    <div class="kpi-grid-free">
+      ${kpiR('CxC Total','$'+d.cxc.toLocaleString(),'▼ '+venc+' vencidas','clientes crédito',venc>0?'r':'a','#DC2626')}
+      ${kpiR('Gastos Totales','$'+d.gastos.toLocaleString(),((d.gastos/d.vt)*100).toFixed(1)+'% ventas','Compras + Nómina','a','#D97706')}
+      ${kpiR('Utilidad Bruta','$'+d.util.toLocaleString(),d.mg+'% margen','Ventas − Gastos',d.mg>=35?'g':d.mg>=32?'a':'r',T.acc)}
+      ${kpiR('Prod. Sin Mov.',d.sinmov,'capital frenado','+60 días sin venta','r','#DC2626')}
+      ${kpiR('Rotación Inv.',d.rot+'x','Meta: 5x / año','eficiencia stock',d.rot>=5?'g':d.rot>=4?'a':'r',T.acc)}
+    </div>
+    <div class="g2" style="padding-bottom:14px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">💳 CxC Clientes Crédito — Detalle</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">Estado de cuenta</div></div>
+        <table class="tbl" id="cxcTbl"></table>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Estructura de Costos</div><button class="exp-btn" onclick="expChart('cCostos')">⬇ PNG</button></div>
+        <canvas id="cCostos" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INVENTARIO ── -->
+  <div id="tab-pi" class="tabcontent">
+    <div class="rag-strip">
+      <div class="rag-cell ${crit>0?'r':'g'}"><div class="rag-dot ${crit>0?'r':'g'}"></div>🔴 ${crit} críticos — Pedir HOY</div>
+      <div class="rag-cell ${d.inv.filter(x=>x.t==='a').length>0?'a':'g'}"><div class="rag-dot ${d.inv.filter(x=>x.t==='a').length>0?'a':'g'}"></div>🟡 ${d.inv.filter(x=>x.t==='a').length} en alerta — Esta semana</div>
+      <div class="rag-cell g"><div class="rag-dot g"></div>🟢 ${d.inv.filter(x=>x.t==='g').length} con stock saludable</div>
+    </div>
+    <div class="g4">
+      ${kpiR('Stock Crítico',crit,'bajo mínimo','Pedir HOY',crit>0?'r':'g','#DC2626')}
+      ${kpiR('En Alerta',d.inv.filter(x=>x.t==='a').length,'cerca del mínimo','Esta semana',d.inv.some(x=>x.t==='a')?'a':'g','#D97706')}
+      ${kpiR('Stock OK',d.inv.filter(x=>x.t==='g').length,'nivel saludable','sin acción','g',T.acc)}
+      ${kpiR('Prod. Sin Mov.',d.sinmov,'+60 días','capital inmovilizado','r','#DC2626')}
+    </div>
+    <div class="gfull" style="padding-top:0">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Stock Actual vs Mínimo por Producto</div><button class="exp-btn" onclick="expChart('cInv')">⬇ PNG</button></div>
+        <canvas id="cInv" height="80"></canvas>
+      </div>
+    </div>
+    <div class="gfull" style="padding-bottom:16px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📋 Detalle de Inventario</div></div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Producto</th><th>Stock Actual</th><th>Mínimo</th><th>Estado</th></tr></thead>
+          <tbody>${d.inv.map(i=>`<tr>
+            <td style="font-weight:600">${i.p}</td>
+            <td style="font-weight:700;color:${i.t==='r'?'#DC2626':i.t==='a'?'#D97706':'#059669'}">${i.s} u.</td>
+            <td>${i.min} u.</td>
+            <td><span class="badge badge-${i.t}">${i.t==='r'?'⚠ Pedir YA':i.t==='a'?'~ Esta semana':'✓ OK'}</span></td>
+          </tr>`).join('')}</tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUCURSALES ── -->
+  <div id="tab-ps" class="tabcontent">
+    <div class="kpi-grid-free">
+      ${kpiR('Suc. Central','$'+(d.suc[0].v/1000).toFixed(1)+'K',((d.suc[0].v/d.suc[0].m-1)*100).toFixed(1)+'% vs meta','Santa Tecla',d.suc[0].v>=d.suc[0].m?'g':'r',T.acc)}
+      ${kpiR('vs 2024 Central','+8.2%','$'+Math.floor(d.suc[0].v*0.92/1000)+'K el año ant.','mismo período','g',T.acc)}
+      ${kpiR('Suc. Norte','$'+(d.suc[1].v/1000).toFixed(1)+'K',((d.suc[1].v/d.suc[1].m-1)*100).toFixed(1)+'% vs meta','Quezaltepeque',d.suc[1].v>=d.suc[1].m?'g':'r','#2563EB')}
+      ${kpiR('vs 2024 Norte','+5.1%','$'+Math.floor(d.suc[1].v*0.95/1000)+'K el año ant.','mismo período','g','#2563EB')}
+      ${kpiR('Brecha Suc.','$'+(d.suc[0].v-d.suc[1].v).toLocaleString(),'Central supera Norte','diferencia mensual','a','#D97706')}
+    </div>
+    <div class="g21" style="padding-bottom:4px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📊 Ventas por Semana — Ambas Sucursales</div><button class="exp-btn" onclick="expChart('cSucComp')">⬇ PNG</button></div>
+        <canvas id="cSucComp" height="110"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">🏪 Desempeño vs Meta</div><div class="card-tag" style="background:${T.accLight};color:${T.accText}">% cumplimiento</div></div>
+        <div id="sucRows" style="margin-top:6px">${buildSuc(d)}</div>
+      </div>
+    </div>
+    <div class="gfull" style="padding-bottom:16px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📈 Sucursales: 2025 vs 2024 (6 meses)</div><button class="exp-btn" onclick="expChart('cSucTrend')">⬇ PNG</button></div>
+        <canvas id="cSucTrend" height="80"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">⚠ Datos de demostración. Los datos reales provienen de las fuentes del cliente. · datavisualsv.com</div>
+  <div class="footer" style="background:${T.footBg}">© 2025 DataVisual SV · Paquete PRO · URL personalizada · Sistema RAG · 3 rondas de ajustes · hola@datavisualsv.com</div>`;
+}
+
+/* ══════════════════════
+   CHARTS
+══════════════════════ */
+function buildCharts(){
+  const T=TH[curPkg];
+  const d=D[curPer];
+  const ACC=T.acc;
+  const grid=T.grid;
+
+  // Semanas (barras dobles sucursales)
+  const semCfg={type:'bar',data:{labels:['S1 (1–7)','S2 (8–14)','S3 (15–21)','S4 (22–28)'],datasets:[
+    {label:'Central',data:d.semS,backgroundColor:ACC+'CC',borderRadius:4},
+    {label:'Norte',data:d.semN,backgroundColor:'#2563EB99',borderRadius:4},
+  ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}}}}};
+  mk('cSemanas',semCfg);
+  mk('cSucComp',JSON.parse(JSON.stringify(semCfg)));
+
+  // Márgenes horizontal
+  const margCfg={type:'bar',data:{labels:d.cats,datasets:[{label:'Margen %',data:d.marg,
+    backgroundColor:d.marg.map(m=>m>=35?'rgba(5,150,105,.85)':m>=28?`${ACC}CC`:'rgba(220,38,38,.75)'),borderRadius:5}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
+      scales:{x:{max:50,ticks:{callback:v=>v+'%'},grid:{color:grid}},y:{grid:{display:false},ticks:{font:{size:10}}}}}};
+  mk('cMargenes',margCfg);
+
+  // Tendencia mensual 2025 vs 2024
+  mk('cTrend',{type:'line',data:{labels:['Ene','Feb','Mar','Abr','May'],datasets:[
+    {label:'2025',data:[29800,30500,31840,35190,38420],borderColor:ACC,backgroundColor:ACC+'22',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:ACC,pointBorderColor:'#fff',pointBorderWidth:2},
+    {label:'2024',data:[26500,27200,27400,28900,31200],borderColor:'#94A3B8',borderDash:[5,5],borderWidth:1.5,pointRadius:3,backgroundColor:'transparent'}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  // Comparativo 3 meses
+  mk('cComp',{type:'bar',data:{labels:PER.slice().reverse(),datasets:[
+    {label:'2025',data:[D[2].vt,D[1].vt,D[0].vt],backgroundColor:[ACC+'44',ACC+'88',ACC+'EE'],borderRadius:4},
+    {label:'Meta',data:[D[2].meta,D[1].meta,D[0].meta],type:'bar',backgroundColor:'rgba(220,38,38,.1)',borderWidth:1.5,borderColor:'#DC2626',borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}}}}});
+
+  // PRO: Proyección
+  mk('cProj',{type:'line',data:{labels:['Ene','Feb','Mar','Abr','May','Jun*','Jul*','Ago*'],datasets:[
+    {label:'2025 Real',data:[29800,30500,31840,35190,38420,null,null,null],borderColor:ACC,backgroundColor:ACC+'22',fill:true,tension:.4,pointRadius:4},
+    {label:'Proyección',data:[null,null,null,null,38420,40100,42000,44200],borderColor:'#059669',borderDash:[6,3],backgroundColor:'rgba(5,150,105,.08)',fill:true,tension:.4,pointRadius:4,borderWidth:2},
+    {label:'2024',data:[26500,27200,27400,28900,31200,null,null,null],borderColor:'#94A3B8',borderDash:[4,4],borderWidth:1.5,pointRadius:3}]},
+    options:{responsive:true,spanGaps:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  // PRO: Year comp sucursales
+  mk('cYearComp',{type:'bar',data:{labels:['Central','Norte'],datasets:[
+    {label:'2025',data:[d.suc[0].v,d.suc[1].v],backgroundColor:[ACC+'CC','#2563EBCC'],borderRadius:4},
+    {label:'2024',data:[Math.floor(d.suc[0].v*.92),Math.floor(d.suc[1].v*.95)],backgroundColor:['rgba(148,163,184,.5)','rgba(148,163,184,.4)'],borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}}}}});
+
+  // PRO: Inventario
+  mk('cInv',{type:'bar',data:{labels:d.inv.map(i=>i.p),datasets:[
+    {label:'Stock Actual',data:d.inv.map(i=>i.s),backgroundColor:d.inv.map(i=>i.t==='r'?'rgba(220,38,38,.8)':i.t==='a'?'rgba(217,119,6,.8)':'rgba(5,150,105,.8)'),borderRadius:4},
+    {label:'Stock Mínimo',data:d.inv.map(i=>i.min),backgroundColor:'rgba(10,18,40,.18)',borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:8}}},y:{ticks:{callback:v=>v+' u.'},grid:{color:grid}}}}});
+
+  // PRO: Costos pie
+  mk('cCostos',{type:'pie',data:{labels:['Compras','Nómina','Renta','Servicios','Otros'],
+    datasets:[{data:[38,28,16,10,8],backgroundColor:['#DC2626','#431407',ACC,'#2563EB','#94A3B8'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:5}}}}});
+
+  // PRO: Suc tendencia
+  mk('cSucTrend',{type:'line',data:{labels:['Dic','Ene','Feb','Mar','Abr','May'],datasets:[
+    {label:'Central 2025',data:[20500,21200,21800,19800,21700,23800],borderColor:ACC,backgroundColor:ACC+'22',fill:false,tension:.4,pointRadius:4},
+    {label:'Norte 2025',data:[10800,11200,11600,12040,13490,14620],borderColor:'#2563EB',backgroundColor:'#2563EB22',fill:false,tension:.4,pointRadius:4},
+    {label:'Central 2024',data:[18900,19600,20000,18200,20000,21900],borderColor:ACC+'55',borderDash:[4,4],borderWidth:1.5,pointRadius:2},
+    {label:'Norte 2024',data:[9800,10200,10500,11200,12400,13500],borderColor:'#2563EB55',borderDash:[4,4],borderWidth:1.5,pointRadius:2}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:4}}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:grid}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  // CxC table
+  buildCxcTable(d,'cxcTbl');
+}
+
+/* ══════════════════════
+   RENDER DISPATCHER
+══════════════════════ */
+function render(){
+  const T=TH[curPkg];
+  applyTheme(T);
+  const root=document.getElementById('root');
+
+  if(curPkg==='s') root.innerHTML=buildStarter(T);
+  else if(curPkg==='g') root.innerHTML=buildGrowth(T);
+  else root.innerHTML=buildPro(T);
+
+  // float badge
+  let fb=document.getElementById('pkgFloat');
+  if(!fb){fb=document.createElement('div');fb.id='pkgFloat';fb.className='pkg-float';document.body.appendChild(fb);}
+  fb.style.background=T.floatBg;fb.style.color=T.floatTxt;
+  fb.style.boxShadow=`0 4px 20px ${T.acc}55`;
+  fb.textContent=T.name;
+
+  requestAnimationFrame(()=>buildCharts());
+
+  // tabla navegable
+  allRows=genRows(D[curPer]);filtRows=allRows.slice();pg=0;renderTbl();
+}
+
+/* ── INIT ── */
+applyTheme(TH['s']);
 render();
 </script>
 </body>
